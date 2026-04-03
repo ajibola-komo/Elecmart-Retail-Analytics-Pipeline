@@ -43,11 +43,9 @@ models:
         tests:
           - not_null
           - accepted_values:
-              arguments:
-                values: [0, 1, 2]
+              values: [0, 1, 2]
       - name: product_segment
         tests:
           - not_null
           - accepted_values:
-              arguments:
-                values: ['Low', 'Entry Level', 'Mid Tier', 'High End', 'Flagship']
+              values: ['Low', 'Entry Level', 'Mid Tier', 'High End', 'Flagship']

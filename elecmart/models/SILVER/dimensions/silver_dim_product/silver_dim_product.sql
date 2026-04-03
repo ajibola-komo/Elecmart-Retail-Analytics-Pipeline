@@ -1,6 +1,6 @@
 with source as (
     select product_id, initcap(product_name) as product_name, category_id::INTEGER as category_id, subcategory_id::INTEGER as subcategory_id,
-    brand_id::INTEGER as brand_id, to_decimal(unit_cost) as unit_cost, to_decimal(unit_price) as unit_price,
+    brand_id::INTEGER as brand_id, cast(unit_cost as DECIMAL(10,2)) as unit_cost, cast(unit_price as DECIMAL(10,2)) as unit_price,
     warranty_years::INTEGER as warranty_years, initcap(product_segment) as product_segment
     from {{source('bronze','dim_product')}}
 ), deduplicate as (

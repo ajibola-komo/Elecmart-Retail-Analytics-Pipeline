@@ -11,74 +11,65 @@ models:
       - name: customer_id
         tests:
           - relationships:
-                to: ref('silver_dim_customer')
-                field: customer_id
+              to: ref('silver_dim_customer')
+              field: customer_id
       - name: session_start_time
         tests:
           - not_null
-          - dbt_utils.expression_is_true:
-              arguments:
-                expression: "session_start_time < session_end_time and session_start_time < current_timestamp()"
+          - expression_is_true:
+              expression: "session_start_time < session_end_time and session_start_time >= current_timestamp()"
       - name: session_end_time
         tests:
           - not_null
-          - dbt_utils.expression_is_true:
-              arguments:
-                expression: "session_end_time > session_start_time and session_end_time < current_timestamp()"
+          - expression_is_true:
+              expression: "session_end_time > session_start_time and session_end_time >= current_timestamp()"
       - name: session_start_date_id
         tests:
           - not_null
           - relationships:
-                to: ref('silver_dim_date')
-                field: date_id
+              to: ref('silver_dim_date')
+              field: date_id
       - name: session_end_date_id
         tests:
           - not_null
           - relationships:
-                to: ref('silver_dim_date')
-                field: date_id
+              to: ref('silver_dim_date')
+              field: date_id
       - name: device_type
         tests:
           - not_null
           - accepted_values:
-              arguments:
-                values: ['Mobile', 'Desktop', 'Tablet']
+              values: ['Mobile', 'Desktop', 'Tablet']
       - name: number_of_pages_viewed
         tests:
           - not_null
-          - dbt_utils.expression_is_true:
-              arguments:
-                expression: "number_of_pages_viewed >= 0"
+          - expression_is_true:
+              expression: "number_of_pages_viewed >= 0"
       - name: product_page_visited_flag
         tests:
           - not_null
           - accepted_values:
-             arguments:
-              values: [True, False]
+              values: [true, false]
       - name: added_to_cart_flag
         tests:
           - not_null
           - accepted_values:
-             arguments:
-              values: [True, False]
+              values: [true, false]
       - name: purchased_flag
         tests:
           - not_null
           - accepted_values:
-             arguments:
-              values: [True, False]
+              values: [true, false]
       - name: traffic_source
         tests:
           - not_null
           - accepted_values:
-             arguments:
               values: ["Organic", "Paid Search", "Direct", "Referral", "Campaign"]
       - name: linked_to_a_campaign_flag
         tests:
           - not_null
           - accepted_values:
-             arguments:
-              values: [True, False]
+              values: [true, false]
       - name: campaign_id
         tests:
           - relationships:

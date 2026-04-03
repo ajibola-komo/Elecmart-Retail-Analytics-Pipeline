@@ -15,32 +15,27 @@ models:
         tests:
           - not_null
           - accepted_values:
-              arguments:
-                values: ['Major','Medium','Flash']
+              values: ['Major','Medium','Flash']
       - name: discount_type
         tests:
           - not_null
           - accepted_values:
-              arguments:
-                values: ['Percentage_Discount','Fixed_Amount_Discount']
+              values: ['Percentage_Discount','Fixed_Amount_Discount']
       - name: discount_value
         tests:
           - not_null
           - accepted_values:
-              arguments:
-                values: [0.05,0.1,0.15,0.2, 20, 25]
+              values: [0.05,0.10,0.15,0.20, 20.00, 25.00]
       - name: promo_start_date
         tests:
           - not_null
-          - dbt_utils.expression_is_true:
-              arguments:
-                expression: 'promo_start_date <= CURRENT_DATE'
+          - expression_is_true:
+              expression: 'promo_start_date <= CURRENT_DATE'
       - name: promo_end_date
         tests:
           - not_null
-          - dbt_utils.expression_is_true:
-              arguments:
-                expression: 'promo_end_date >= promo_start_date'
+          - expression_is_true:
+              expression: 'promo_end_date >= promo_start_date'
       - name: promo_start_date_id
         tests:
           - not_null
@@ -57,6 +52,5 @@ models:
         tests:
           - not_null
           - accepted_values:
-              arguments:
-                values: [True, False]
+              values: [true, false]
 

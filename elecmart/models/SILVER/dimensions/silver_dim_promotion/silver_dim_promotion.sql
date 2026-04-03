@@ -1,8 +1,8 @@
 with source as (
     select promo_id::INTEGER as promo_id, initcap(promo_name) as promo_name, initcap(promo_type) as promo_type, initcap(discount_type) as discount_type,
-    to_decimal(discount_value) as discount_value, promo_start_date::TIMESTAMP_NTZ as promo_start_date,
+    cast(discount_value as DECIMAL(10,2)) as discount_value, promo_start_date::TIMESTAMP_NTZ as promo_start_date,
     promo_start_date_id::INTEGER as promo_start_date_id, promo_end_date::TIMESTAMP_NTZ as promo_end_date, promo_end_date_id::INTEGER
-    as promo_end_date_id, promo_duration::INTEGER as promo_duration, lower(is_active) as is_active,
+    as promo_end_date_id, promo_duration::INTEGER as promo_duration, cast(is_active as BOOLEAN) as is_active,
     row_number() over(
         partition by promo_id
         order by promo_start_date

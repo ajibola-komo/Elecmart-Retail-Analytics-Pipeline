@@ -13,8 +13,7 @@ models:
         tests:
           - not_null
           - expression_is_true:
-                arguments:
-                    expression: 'transaction_timestamp <= current_timestamp()'
+              expression: 'transaction_timestamp <= current_timestamp()'
       - name: transaction_date_id
         tests:
             - relationships:
@@ -33,8 +32,7 @@ models:
       - name: sales_channel
         tests:
             - accepted_values:
-                arguments:
-                    values: ['web', 'mobile', 'store']
+                values: ['web', 'mobile', 'store']
       - name: session_id
         tests:
             - relationships:

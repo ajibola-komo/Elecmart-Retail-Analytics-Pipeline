@@ -23,8 +23,7 @@ models:
         tests:
           - not_null
           - expression_is_true:
-              arguments:
-                expression: "transaction_timestamp < current_timestamp()"
+              expression: "transaction_timestamp <= current_timestamp()"
       - name: transaction_date_id
         tests:
           - not_null
@@ -41,29 +40,24 @@ models:
         tests:
           - not_null
           - expression_is_true:
-              arguments:
-                expression: "quantity > 0"
+              expression: "quantity > 0"
       - name: unit_cost
         tests:
           - not_null
           - expression_is_true:
-              arguments:
-                expression: "unit_cost >= 0"
+              expression: "unit_cost >= 0"
       - name: unit_price
         tests:
           - not_null
           - expression_is_true:
-              arguments:
-                expression: "unit_price >= 0 and unit_price > unit_cost"
+              expression: "unit_price >= 0 and unit_price > unit_cost"
       - name: line_cost
         tests:
           - not_null
           - expression_is_true:
-              arguments:
-                expression: "line_cost = quantity * unit_cost"
+              expression: "line_cost = quantity * unit_cost"
       - name: line_total
         tests:
           - not_null
           - expression_is_true:
-              arguments:
-                expression: "line_total = quantity * unit_price"
+              expression: "line_total = quantity * unit_price"
