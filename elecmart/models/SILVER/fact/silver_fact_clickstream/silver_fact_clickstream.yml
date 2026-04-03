@@ -17,12 +17,12 @@ models:
         tests:
           - not_null
           - expression_is_true:
-              expression: "session_start_time < session_end_time and session_start_time >= current_timestamp()"
+              expression: "session_start_time < session_end_time and session_start_time <= current_timestamp()"
       - name: session_end_time
         tests:
           - not_null
           - expression_is_true:
-              expression: "session_end_time > session_start_time and session_end_time >= current_timestamp()"
+              expression: "session_end_time > session_start_time and session_end_time <= current_timestamp()"
       - name: session_start_date_id
         tests:
           - not_null

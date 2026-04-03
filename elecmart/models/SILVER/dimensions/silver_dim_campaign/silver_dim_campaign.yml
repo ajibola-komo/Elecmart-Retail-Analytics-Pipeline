@@ -22,14 +22,12 @@ models:
         tests:
           - not_null
           - expression_is_true:
-              arguments:
-                expression: 'campaign_start_date <= CURRENT_DATE'
+              expression: 'campaign_start_date < campaign_end_date'
       - name: campaign_end_date
         tests:
           - not_null
           - expression_is_true:
-              arguments:
-                expression: 'campaign_end_date >= campaign_start_date'
+              expression: 'campaign_end_date > campaign_start_date'
       - name: campaign_start_date_id
         tests:
           - not_null
