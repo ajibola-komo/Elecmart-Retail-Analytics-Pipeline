@@ -1,0 +1,30 @@
+Subcategory_ID,Subcategory_Name,Category_ID
+1,TVs,1
+2,TV Accessories,1
+3,Laptops,2
+4,Desktops,2
+5,Monitors,2
+6,PC Accessories,2
+7,Projectors,2
+8,Home Theater Systems,3
+9,Soundbars,3
+10,Cameras,4
+11,Camera Accessories,4
+12,Safe & Locks,5
+13,CCTV Cameras,5
+14,Sensors & Alarms,5
+15,Smartphones,6
+16,Tablets,6
+17,Wearables,6
+18,Headphones & Earphones,7
+19,Bluetooth Speakers,7
+20,Hi-Fi Systems,7
+21,Game Consoles,8
+22,Game Controllers,8
+23,VR Headsets,8
+24,External Hard Drives,9
+25,Air Fryers,10
+26,Blenders,10
+27,Coffee Machines,10
+28,Cookers,10
+29,Oven,10

@@ -68,7 +68,7 @@ INVENTORY_DDL_PATH = DDL_DIR / "inventory.sql"
 DATE_DDL_PATH = DDL_DIR / "dim_date.sql"
 
 #--------------------------------- CSV Files Path ---------------------------------------------
-RAW_DIR = DATA_DIR / "raw"
+RAW_DIR = PROJECT_ROOT / "raw"
 BRAND_RAW_PATH = RAW_DIR / "dim_brand.csv"
 CATEGORY_RAW_PATH = RAW_DIR / "dim_category.csv"
 SUBCATEGORY_RAW_PATH = RAW_DIR / "dim_subcategory.csv"

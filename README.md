@@ -108,6 +108,15 @@ elecmart/
 ├── requirements.txt
 ├── .gitignore
 │
+│
+│── raw/
+│   ├── dim_brand.csv
+│   ├── dim_category.csv
+│   ├── dim_product.csv
+│   └── dim_subcategory.csv
+│
+│
+│
 ├── sql/
 │   ├── ddl/
 │   │   ├── dim_brand.sql
