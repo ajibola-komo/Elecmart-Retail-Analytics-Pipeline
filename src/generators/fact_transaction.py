@@ -1,34 +1,75 @@
-import duckdb as db
 import numpy as np
-from numpy.ma import ids
 import pandas as pd
-from src.generators.segment_customers import generate_customer_segments
 from src.config.paths import (TRANSACTIONS_DDL_PATH, TRANSACTIONS_CSV_PATH, TRANSACTIONS_PARQUET_PATH)
-from src.config.constants import (PAYMENT_TYPES,TRANSACTION_STATUSES, PAYMENT_TYPES_WEIGHTS, TRANSACTION_WEIGHTS, PROB_OF_REPEATED_SESSION)
+from src.config.constants import (PAYMENT_TYPES,TRANSACTION_STATUSES, 
+                                  PAYMENT_TYPES_WEIGHTS, TRANSACTION_WEIGHTS, PROB_OF_REPEATED_SESSION)
+
+from src.generators.segment_customers import generate_customer_segments
+from src.generators.segment_stores import segment_stores
+
+#transaction_id - done
+#transaction_timestamp - done
+#transaction_date_id - done
+#customer_id - done
+#sales_channel - done
+#store_id
+#sales_channel - done
+#session_id - done
+#promo_id - done
+#campaign_id - done
+#transaction_subtotal - done
+#transaction_discount_applied - done
+#transaction_total - done
+#items_count - done
+#payment_type - done
+#transaction_status - done
 
 def generate_transactions(conn):
-    
     create_db = TRANSACTIONS_DDL_PATH.read_text()
 
     conn.execute(create_db)
 
     conn.execute(f"DELETE FROM FACT_TRANSACTION")
 
-    sales_data = conn.execute("select transaction_id, session_id, transaction_timestamp, aov_category, sum(line_total) as transaction_subtotal from fact_sale " \
-    "group by transaction_id, session_id, transaction_timestamp, aov_category").df()
 
+# retrieve the base transaction data from sales, sessions, customers, promotions, campaigns
+    sales_data = conn.execute("""select transaction_id, session_id, transaction_timestamp, aov_category, sum(line_total) as transaction_subtotal, 
+                              sum(line_cost) as transaction_cost,
+                              count(product_id) as items_count
+                              from fact_sale 
+                              group by transaction_id, session_id, transaction_timestamp, aov_category""").df()
+
+    transaction_ids = sales_data['transaction_id'].values
+    total_transactions = len(transaction_ids)
+    transaction_timestamps = sales_data['transaction_timestamp'].values
+    transaction_date_ids = np.array([pd.to_datetime(ts).strftime('%Y%m%d') for ts in transaction_timestamps], dtype=np.int32)
+    transaction_subtotals = sales_data['transaction_subtotal'].values
+    transaction_costs = sales_data['transaction_cost'].values
     aov_categories = sales_data['aov_category'].values
+    items_count_per_transaction = sales_data['items_count'].values
+    session_ids = sales_data['session_id'].values
 
-    total_items = conn.execute("select transaction_id, count(product_id) as item_count from fact_sale group by transaction_id").df()
-    items_count_per_transaction = total_items['item_count']
-    transaction_items_count_dict = dict(zip(total_items['transaction_id'], items_count_per_transaction))
+    sessions_data = conn.execute("""select session_id, customer_id, session_start_time, session_end_time, campaign_id,
+    case when device_type = 'Mobile' then 'Mobile'
+    when device_type = 'Tablet' then 'Web' 
+    else 'Web' end as sales_channel from fact_clickstream where purchased_flag = TRUE""").df()
+    session_id_customer_id_dict = dict(zip(sessions_data['session_id'].values, sessions_data['customer_id'].values))
+    session_id_campaign_id_dict = dict(zip(sessions_data['session_id'].values, sessions_data['campaign_id'].values))
+    session_id_sales_channel_dict = dict(zip(sessions_data['session_id'].values, sessions_data['sales_channel'].values))
 
-    sessions_data = conn.execute('select session_id, customer_id, session_start_time, session_end_time, campaign_id from fact_clickstream where purchased_flag = TRUE').df()
-    sessions_session_ids = sessions_data['session_id'].values
-    session_customer_ids = sessions_data['customer_id'].values
-    session_campaign_ids = sessions_data['campaign_id'].values
-    cust_session_dict = dict(zip(sessions_session_ids, session_customer_ids))
-    camp_session_dict = dict(zip(sessions_session_ids, session_campaign_ids))
+    is_online_transaction = ~pd.isna(session_ids)
+    is_in_store_transaction = pd.isna(session_ids)
+
+    customer_ids = np.full(total_transactions, None, dtype=object)
+    customer_ids[is_online_transaction] = [session_id_customer_id_dict.get(sid, None)for sid in session_ids[is_online_transaction]]
+    campaign_ids = np.full(total_transactions, None, dtype=object)
+    campaign_ids[is_online_transaction] = [session_id_campaign_id_dict.get(sid, None) for sid in session_ids[is_online_transaction]]
+    sales_channels = np.full(total_transactions, None, dtype=object)
+    sales_channels[is_online_transaction] = [session_id_sales_channel_dict.get(sid, None) for sid in session_ids[is_online_transaction]]
+    sales_channels[is_in_store_transaction] = 'Store'
+
+    payment_types = np.random.choice(PAYMENT_TYPES, size=len(transaction_ids), p=PAYMENT_TYPES_WEIGHTS)
+    transaction_statuses = np.random.choice(TRANSACTION_STATUSES, size=len(transaction_ids), p=TRANSACTION_WEIGHTS)
 
     customer_segments = generate_customer_segments(conn)
 
@@ -59,10 +100,9 @@ def generate_transactions(conn):
     basic_subset_ids = basic_level_customers_subset['customer_id'].values
     basic_subset_signup_dates = basic_level_customers_subset['signup_date'].values
 
-    total_transactions = len(sales_data)
+    in_store_indices = np.where(is_in_store_transaction)[0]
 
-
-    repeated_session = np.random.rand(total_transactions) <= PROB_OF_REPEATED_SESSION
+    repeated_session = np.random.rand(len(in_store_indices)) <= PROB_OF_REPEATED_SESSION
 
     locations_data = conn.execute("select location_id from dim_location").df()
     all_location_ids = locations_data['location_id']
@@ -79,24 +119,37 @@ def generate_transactions(conn):
     campaign_promo_ids = campaigns_data['promo_id'].values
     camp_promo_dict = dict(zip(all_campaigns_id,campaign_promo_ids))
 
-    stores_data = conn.execute('select store_id, location_id, store_type, opening_date from dim_store').df()
-    store_location_ids = conn.execute('select distinct location_id from dim_store').df()
-    stores_location_dict = dict(zip(stores_data['location_id'], stores_data['store_id']))
+    stores_data = segment_stores(conn)
+    warehouse_store_map = stores_data['warehouse_store_map']
+    physical_store_map = stores_data['physical_store_map']
 
-    transaction_ids = sales_data['transaction_id'].values
-    session_ids = sales_data['session_id'].values
-    transaction_timestamps = sales_data['transaction_timestamp'].values
+    online_stores = conn.execute("select store_id from dim_store where store_type = 'Warehouse'").df()
 
-    session_series = sales_data['session_id']
-    customers_ids = session_series.map(cust_session_dict).values.copy()
+    promo_ids = np.full(total_transactions, None, dtype=object)
+    promo_ids[is_online_transaction] = [camp_promo_dict.get(cid, None) for cid in campaign_ids[is_online_transaction]]
 
-    no_customer_session = pd.isna(session_ids)
+    discount_types = np.full(total_transactions, None, dtype=object)
+    discount_types[is_online_transaction] = [promo_disc_type.get(pid, None) for pid in promo_ids[is_online_transaction]]
+    discount_values = np.full(total_transactions, 0.0, dtype=float)
+    discount_values[is_online_transaction] = [promo_disc_value.get(pid, 0.0) for pid in promo_ids[is_online_transaction]]
 
-    sales_channels = np.where(no_customer_session, 'In-Store', 'Online')
+    transaction_discount_applied = np.full(total_transactions, 0.0, dtype=float)
 
-    true_indexes = np.where(no_customer_session)[0]
+    is_percentage_discount = discount_types == 'Percentage_Discount'
+    transaction_discount_applied[is_percentage_discount] = transaction_subtotals[is_percentage_discount] * discount_values[is_percentage_discount] / 100
 
-    for idx in true_indexes:
+    is_fixed_amount_discount = discount_types == 'Fixed_Amount_Discount'
+    transaction_discount_applied[is_fixed_amount_discount] = discount_values[is_fixed_amount_discount]
+
+    ineligible_for_discount_mask = transaction_subtotals < 50
+    transaction_discount_applied[ineligible_for_discount_mask] = 0.0
+    promo_ids[ineligible_for_discount_mask] = None
+
+    transaction_totals = transaction_subtotals - transaction_discount_applied
+
+    eligible_in_store_transactions = np.where(is_in_store_transaction)[0]
+
+    for i,idx in enumerate(eligible_in_store_transactions):
         subset_dates_map = {
             'High': premium_subset_signup_dates,
             'Mid': mid_subset_signup_dates,
@@ -110,7 +163,7 @@ def generate_transactions(conn):
         }
 
         category = aov_categories[idx]
-        if repeated_session[idx]:
+        if repeated_session[i]:
             dates = subset_dates_map.get(category, all_customer_sign_up_dates)
             ids = subset_ids_map.get(category, all_customer_ids)
         else:
@@ -133,77 +186,45 @@ def generate_transactions(conn):
         if len(eligible_customers) == 0:
                 eligible_customers = all_customer_ids
 
-        customers_ids[idx] = np.random.choice(eligible_customers)
+        customer_ids[idx] = np.random.choice(eligible_customers)
     
-    payment_types = np.random.choice(PAYMENT_TYPES, p = PAYMENT_TYPES_WEIGHTS, size=total_transactions)
+    guest_transaction_mask = pd.isna(customer_ids)
 
-    campaign_ids = session_series.map(camp_session_dict).values.copy()
-    promo_ids = pd.Series(campaign_ids).map(camp_promo_dict).values.copy()
+    location_ids = np.full(total_transactions, None, dtype=object)
 
-    discount_types = pd.Series(promo_ids).map(promo_disc_type).values.copy()
-    discount_values = pd.Series(promo_ids).map(promo_disc_value).values.copy()
+    location_ids[~guest_transaction_mask] = [cust_location_dict.get(cid, None) for cid in customer_ids[~guest_transaction_mask]]
 
-    transaction_subtotals = sales_data['transaction_subtotal'].values
+    location_ids[guest_transaction_mask] = np.random.choice(all_location_ids, size=np.sum(guest_transaction_mask))
 
-    no_promo_id = pd.isna(promo_ids)
-    discount_values[no_promo_id] = float(0.0)
-
-    fixed_discount_types = discount_types == 'Fixed_Amount_Discount'
-    percentage_discount_types = discount_types == 'Percentage_Discount'
-
-    transaction_discounts_applied = np.zeros(total_transactions, dtype = float)
-
-    transaction_discounts_applied[fixed_discount_types] = discount_values[fixed_discount_types]
-    transaction_discounts_applied[percentage_discount_types] = discount_values[percentage_discount_types] * transaction_subtotals[percentage_discount_types]
-
-    transaction_totals = np.round(transaction_subtotals - transaction_discounts_applied,2)
-
-    items_count = pd.Series(transaction_ids).map(transaction_items_count_dict).values
-
-    location_ids = np.empty(total_transactions, dtype=object)
-
-    guest_transaction = pd.isna(customers_ids)
-
-    location_ids[guest_transaction] = np.random.choice(store_location_ids['location_id'].values, size = np.sum(guest_transaction))
-
-    location_ids[~guest_transaction] = pd.Series(customers_ids[~guest_transaction]).map(cust_location_dict).values
-
-    store_ids = pd.Series(location_ids).map(stores_location_dict).values
-
-    unassigned_store = pd.isna(store_ids)
-
-    store_ids[unassigned_store] = np.random.choice(stores_data['store_id'].values, size=np.sum(unassigned_store))
-
-    transaction_statuses = np.random.choice(TRANSACTION_STATUSES, p = TRANSACTION_WEIGHTS, size = total_transactions)
+    store_ids = np.full(total_transactions, None, dtype=object)
+    store_ids[is_online_transaction] = [np.random.choice(warehouse_store_map.get(loc_id, [None])) for loc_id in location_ids[is_online_transaction]]
+    store_ids[is_in_store_transaction] = [np.random.choice(physical_store_map.get(loc_id, [None])) for loc_id in location_ids[is_in_store_transaction]]
+    unassigned_store_ids = pd.isna(store_ids)
+    store_ids[unassigned_store_ids] = [np.random.choice(online_stores['store_id'].values) for _ in range(np.sum(unassigned_store_ids))]
 
     df_raw = pd.DataFrame({
-        "transaction_id":transaction_ids,
-        "transaction_timestamp":transaction_timestamps,
-        "transaction_date_id":pd.to_datetime(transaction_timestamps).strftime('%Y%m%d').astype(int),
-        "customer_id":customers_ids,
-        "store_id":store_ids,
-        "sales_channel":sales_channels,
-        "session_id":session_ids,
-        "promo_id":promo_ids,
-        "campaign_id":campaign_ids,
-        "transaction_subtotal":transaction_subtotals,
-        "transaction_discount_applied":transaction_discounts_applied,
-        "transaction_total":transaction_totals,
-        "items_count":items_count,
-        "payment_type":payment_types,
-        "transaction_status":transaction_statuses
-    })
+            'transaction_id': transaction_ids,
+            'transaction_timestamp': transaction_timestamps,
+            'transaction_date_id': transaction_date_ids,
+            'customer_id': customer_ids,
+            'store_id': store_ids,
+            'sales_channel': sales_channels,
+            'session_id': session_ids,
+            'promo_id': promo_ids,
+            'campaign_id': campaign_ids,
+            'transaction_subtotal': transaction_subtotals.astype(float),
+            'transaction_discount_applied': transaction_discount_applied.astype(float),
+            'transaction_total': transaction_totals.astype(float),
+            'transaction_cost': transaction_costs.astype(float),
+            'items_count': items_count_per_transaction,
+            'payment_type': payment_types,
+            'transaction_status': transaction_statuses
+        })
 
-    conn.register("df_raw",df_raw)
+    conn.register("df_raw", df_raw)
 
     conn.execute("INSERT INTO FACT_TRANSACTION SELECT * FROM DF_RAW")
 
     conn.execute(f"COPY FACT_TRANSACTION TO '{TRANSACTIONS_CSV_PATH}' (FORMAT CSV, HEADER true)")
 
-    conn.execute(f'''
-                    COPY FACT_TRANSACTION TO '{TRANSACTIONS_PARQUET_PATH}' (FORMAT PARQUET)
-''')
-
-
-
-
+    conn.execute(f'''COPY FACT_TRANSACTION TO '{TRANSACTIONS_PARQUET_PATH}' (FORMAT PARQUET)''')

@@ -20,4 +20,5 @@ dbt_internal_packages/
 .DS_Store
 Thumbs.db
 
-data/
+csv/
+parquet/

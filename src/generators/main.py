@@ -10,8 +10,7 @@ from src.generators.products import generate_products
 from src.generators.customers import generate_customers
 from src.generators.promotions import generate_promotions
 from src.generators.fact_sale import generate_sales
-#from src.generators.fact_transaction import generate_transactions
-from src.generators.rewrite_fact_transaction import generate_transactions
+from src.generators.fact_transaction import generate_transactions
 from src.generators.inventory import generate_inventories
 from src.storage.s3_upload import upload_parquet_files
 from src.storage.snowflake_upload import upload_from_s3_to_snowflake

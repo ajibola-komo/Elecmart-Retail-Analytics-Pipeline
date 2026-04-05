@@ -150,12 +150,7 @@ elecmart/
 │   │   ├── fact_sale.sql
 │   │   ├── fact_transaction.sql
 │   │   └── inventory.sql
-│   │
-│   │
-│   │
-│   └── constraints/
-│       ├── primary_keys.sql
-│       └── foreign_keys.sql
+│
 │
 ├── src/
 │   ├── __init__.py
@@ -201,10 +196,11 @@ elecmart/
 │       ├── s3_upload.py
 │       └── snowflake_upload.py
 │
-├── data/
-|   |── exports
-│           ├── parquet/
-│           └── csv/
+├── raw/
+│    ├── dim_brand.csv
+│    ├── dim_category.csv
+│    ├── dim_subcategory.csv
+│    └── dim_product.csv
 │
 └── elecmart/ (dbt)
     ├── analyses/

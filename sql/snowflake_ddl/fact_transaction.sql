@@ -11,6 +11,7 @@ CREATE OR REPLACE TABLE FACT_TRANSACTION (
     transaction_subtotal decimal(10,2),
     transaction_discount_applied decimal(10,2),
     transaction_total decimal(10,2),
+    transaction_cost decimal(10,2),
     items_count int,
     payment_type varchar,
     transaction_status varchar,
