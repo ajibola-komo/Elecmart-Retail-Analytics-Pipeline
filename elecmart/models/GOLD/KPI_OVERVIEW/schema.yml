@@ -8,3 +8,5 @@ models:
         - total_cost_matches_transactions
         - gross_profit_reconciliation
         - profit_margin_reconciliation
+        - completed_aov
+        - total_completed_transactions

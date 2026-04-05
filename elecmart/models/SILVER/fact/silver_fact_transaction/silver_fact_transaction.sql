@@ -11,6 +11,7 @@ campaign_id::INTEGER as campaign_id,
 cast(transaction_subtotal as decimal(10,2)) as transaction_subtotal,
 cast(transaction_discount_applied as decimal(10,2)) as transaction_discount_applied,
 cast(transaction_total as decimal(10,2)) as transaction_total,
+cast(transaction_cost as decimal(10,2)) as transaction_cost,
 items_count::INTEGER as items_count, payment_type as payment_type,
 transaction_status from {{source('bronze','fact_transaction')}}
 ) select * from source

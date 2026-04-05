@@ -57,6 +57,8 @@ models:
       - name: transaction_total
         tests:
             - not_null
+            - expression_is_true:
+                expression: 'transaction_total >= 0'
       - name: items_count
         tests:
             - not_null
