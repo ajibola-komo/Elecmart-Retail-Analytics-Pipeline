@@ -26,6 +26,7 @@ models:
                 field: customer_id
       - name: store_id
         tests:
+            - not_null
             - relationships:
                 to: ref('silver_dim_store')
                 field: store_id
