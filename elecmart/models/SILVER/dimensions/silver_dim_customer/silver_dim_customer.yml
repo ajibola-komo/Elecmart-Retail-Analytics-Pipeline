@@ -116,6 +116,14 @@ models:
           - expression_is_true:
               arguments:
                 expression: "estimated_annual_income > 0"
+      - name: income_bracket
+        description: >
+          Income bracket of the customer based on predefined income ranges (e.g., 'Low Income', 'Middle Income', 'High Income'). 
+          This field is derived from the estimated_annual_income column and is used for demographic segmentation and analysis.
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['Low Income', 'Middle Income', 'High Income']
       - name: sms_opt_in
         description: >
           Indicates whether the customer has opted in to receive SMS notifications.

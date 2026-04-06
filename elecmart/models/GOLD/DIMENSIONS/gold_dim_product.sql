@@ -1,5 +1,6 @@
-select product_id, product_name, dp.brand_id, dp.category_id, dp.subcategory_id,
-db.brand_name as brand_name, dc.category_name as category_name, dsc.subcategory_name as subcategory_name,
+select product_id, product_name, dp.brand_id, db.brand_name as brand_name,
+dp.category_id, dc.category_name as category_name,
+dp.subcategory_id, dsc.subcategory_name as subcategory_name,
 dp.unit_cost, dp.unit_price, dp.warranty_years
  from {{ ref('silver_dim_product') }} dp
  inner join {{ref('silver_dim_brand')}} db

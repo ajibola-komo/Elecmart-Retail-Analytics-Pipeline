@@ -17,7 +17,8 @@ deduplicate as (
         partition by email_address
         order by signup_date
     ) as rn from source
-), deduplicated as ( select customer_id, email_address, first_name, last_name, gender, customer_persona, birth_date, birth_year, age,
+), deduplicated as ( select 
+customer_id, email_address, first_name, last_name, gender, customer_persona, birth_date, birth_year, age,
 location_id, signup_date, signup_date_id, signup_channel, loyalty_status, estimated_annual_income, email_opt_in, sms_opt_in
 from deduplicate where rn = 1)
 select customer_id, email_address, first_name, last_name, gender, customer_persona, birth_date, birth_year, age, case 
@@ -27,5 +28,10 @@ select customer_id, email_address, first_name, last_name, gender, customer_perso
     when age between 45 and 54 then '45-54'
     else '55+'
     end as age_group,
-location_id, signup_date, signup_date_id, signup_channel, loyalty_status, estimated_annual_income, email_opt_in, sms_opt_in
+location_id, signup_date, signup_date_id, signup_channel, loyalty_status, 
+case when estimated_annual_income < 50000 then 'Low Income'
+    when estimated_annual_income between 50000 and 100000 then 'Middle Income'
+    else 'High Income'
+    end as income_bracket,
+email_opt_in, sms_opt_in
 from deduplicated

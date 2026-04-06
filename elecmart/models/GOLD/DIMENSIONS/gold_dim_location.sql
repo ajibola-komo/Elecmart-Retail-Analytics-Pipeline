@@ -1,1 +1,0 @@
-select * from {{ref('silver_dim_location')}}
