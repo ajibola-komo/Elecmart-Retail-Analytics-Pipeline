@@ -32,5 +32,8 @@ total_units_returned, (total_sales - total_revenue_returned) as net_revenue,
 (total_cost - total_cogs_returned) as net_cogs,
 (total_transactions - total_transactions_returned) as net_transactions,
 average_order_value as aov, average_order_value_returned as aov_returned,
-(gross_profit - gross_profit_returned) as net_gross_profit
+(gross_profit - gross_profit_returned) as net_gross_profit,
+round(total_revenue_returned / nullif(total_sales,0) * 100, 2) as return_rate_revenue,
+round(total_transactions_returned / nullif(total_transactions,0) * 100, 2) as return_rate_transactions,
+round((total_units_returned / nullif(total_units_sold,0)) * 100, 2) as return_rate_units
  from final
