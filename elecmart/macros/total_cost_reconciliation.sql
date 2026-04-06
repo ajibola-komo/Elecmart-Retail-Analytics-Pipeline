@@ -2,7 +2,7 @@
 
 select *
 from {{ model }}
-where total_cost_for_completed_transactions != (
+where total_cogs != (
     select coalesce(sum(transaction_cost), 0) from {{ ref('gold_fact_completed_transaction') }}
 )
 

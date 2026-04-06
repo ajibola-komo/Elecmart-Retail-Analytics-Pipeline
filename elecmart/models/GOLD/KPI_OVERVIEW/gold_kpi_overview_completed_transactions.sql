@@ -13,7 +13,7 @@ select coalesce(sum(transaction_total), 0) as total_revenue_returned,
 coalesce(sum(transaction_cost), 0) as total_cogs_returned,
 count(transaction_id) as total_transactions_returned, sum(items_count) as total_units_returned,
 round(coalesce((sum(transaction_total) - sum(transaction_cost)), 0), 2) as gross_profit_returned
- from {{ ref('gold_fact_returned_transaction') }}
+ from {{ ref('gold_fact_returns') }}
 ), final as (
 select total_sales, total_cost, gross_profit, average_order_value, total_transactions, total_units_sold, 
 total_revenue_returned, total_cogs_returned, total_transactions_returned, total_units_returned, 

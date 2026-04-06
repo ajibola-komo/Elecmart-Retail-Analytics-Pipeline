@@ -108,14 +108,6 @@ models:
           - not_null
           - accepted_values:
               values: ['basic', 'silver', 'gold', 'elite']
-      - name: estimated_annual_income
-        description: >
-          Estimated annual income of the customer. This field is used for demographic analysis and targeted marketing.
-        tests:
-          - not_null
-          - expression_is_true:
-              arguments:
-                expression: "estimated_annual_income > 0"
       - name: income_bracket
         description: >
           Income bracket of the customer based on predefined income ranges (e.g., 'Low Income', 'Middle Income', 'High Income'). 

@@ -1,7 +1,7 @@
 {% test profit_margin_reconciliation(model) %}
 select *
 from {{ model }}
-where profit_margin_for_completed_transactions != (
+where profit_margin != (
     select 
 round(
     (coalesce(sum(transaction_total),0) - coalesce(sum(transaction_cost), 0))

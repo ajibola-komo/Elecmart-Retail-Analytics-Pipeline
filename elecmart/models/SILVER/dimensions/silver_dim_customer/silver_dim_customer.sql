@@ -8,7 +8,8 @@ with source as (
     when lower(signup_channel) = 'online' then 'web'
     when lower(signup_channel) = 'in-store' then 'store'
     else lower(signup_channel)
-    end as signup_channel, lower(loyalty_status) as loyalty_status, to_decimal(estimated_annual_income) as estimated_annual_income,
+    end as signup_channel, lower(loyalty_status) as loyalty_status, 
+    cast(estimated_annual_income as DECIMAL(10, 2)) as estimated_annual_income,
     email_opt_in, sms_opt_in 
     from {{ source('bronze','dim_customer') }}
 ), 

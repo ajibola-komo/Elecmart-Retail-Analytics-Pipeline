@@ -2,7 +2,7 @@
 
 select *
 from {{ model }}
-where total_completed_transactions != (
+where total_transactions != (
     select coalesce(count(transaction_id), 0)
     from {{ ref('gold_fact_completed_transaction') }}
 )
