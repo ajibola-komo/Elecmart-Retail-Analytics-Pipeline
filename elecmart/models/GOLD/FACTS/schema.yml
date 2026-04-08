@@ -1,0 +1,7 @@
+version: 2
+
+models:
+  - name: gold_fact_sale
+    description: "Gold layer fact table for sales transactions"
+    tests:
+        - total_allocated_line_discount_matches_transaction_discount_applied
