@@ -1,26 +1,27 @@
 with product_monthly_performance_completed_transactions as (
-select product_id, date_trunc('month', fs.transaction_timestamp)::DATE as transaction_month,
+select fs.product_id, date_trunc('month', fs.transaction_timestamp)::DATE as transaction_month,
 to_char(date_trunc('month', fs.transaction_timestamp), 'YYYYMMDD') as transaction_month_id,
 dp.product_name, dp.category_name, dp.brand_name,
-sum(fs.transaction_total) as total_revenue,
+sum(fs.net_line_revenue) as total_revenue,
 sum(fs.line_cost) as total_cogs,
-sum(fs.transaction_total) - sum(fs.line_cost) as gross_profit,
-round((sum(fs.transaction_total) - sum(fs.line_cost)) / nullif(sum(fs.transaction_total), 0) * 100, 2) as profit_margin_percentage,
+sum(fs.net_line_revenue) - sum(fs.line_cost) as gross_profit,
+round((sum(fs.net_line_revenue) - sum(fs.line_cost)) / nullif(sum(fs.net_line_revenue), 0) * 100, 2) as profit_margin_percentage,
 sum(fs.quantity) as total_units_sold
 from {{ref('gold_fact_sale')}} fs inner join {{ref('gold_dim_date')}} dd on fs.transaction_timestamp::DATE = dd.date
+inner join {{ref('gold_dim_product')}} dp on fs.product_id = dp.product_id
 where transaction_status = 'Completed'
-group by product_id, transaction_month, transaction_month_id
+group by fs.product_id, transaction_month, transaction_month_id, dp.product_name, dp.category_name, dp.brand_name
 ), product_monthly_performance_returned_transactions as (
-select product_id, date_trunc('month', fs.transaction_timestamp)::DATE as transaction_month,
+select fs.product_id, date_trunc('month', fs.transaction_timestamp)::DATE as transaction_month,
 to_char(date_trunc('month', fs.transaction_timestamp), 'YYYYMMDD') as transaction_month_id,
-sum(fs.transaction_total) as total_revenue_returned,
+sum(fs.net_line_revenue) as total_revenue_returned,
 sum(fs.line_cost) as total_cogs_returned,
-sum(fs.transaction_total) - sum(fs.line_cost) as gross_profit_returned,
-round((sum(fs.transaction_total) - sum(fs.line_cost)) / nullif(sum(fs.transaction_total), 0) * 100, 2) as profit_margin_percentage_returned,
+sum(fs.net_line_revenue) - sum(fs.line_cost) as gross_profit_returned,
+round((sum(fs.net_line_revenue) - sum(fs.line_cost)) / nullif(sum(fs.net_line_revenue), 0) * 100, 2) as profit_margin_percentage_returned,
 sum(fs.quantity) as total_units_sold_returned
 from {{ref('gold_fact_sale')}} fs inner join {{ref('gold_dim_date')}} dd on fs.transaction_timestamp::DATE = dd.date
 where transaction_status = 'Returned'
-group by product_id, transaction_month, transaction_month_id
+group by fs.product_id, transaction_month, transaction_month_id
 )
 select ct.product_id, ct.transaction_month, ct.transaction_month_id, ct.product_name, ct.category_name, ct.brand_name,
 ct.total_revenue, ct.total_cogs, 

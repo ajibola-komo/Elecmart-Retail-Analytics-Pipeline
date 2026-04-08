@@ -58,7 +58,7 @@ models:
           - not_null
           - expression_is_true:
               arguments:
-                expression: "age > 18 AND age < 100"
+                expression: "age >= 18 AND age < 100"
       - name: age_group
         description: >
           Age group of the customer based on predefined age ranges (e.g., '18-24', '25-34', '35-44', '45-54', '55+'). 
