@@ -3,7 +3,7 @@ with source as (
            product_id::INTEGER as product_id,
            store_id::INTEGER as store_id,
            snapshot_month::DATE as snapshot_month,
-           TO_NUMBER(TO_CHAR(snapshot_month, 'YYYYMMDD')) AS snapshot_month_id,
+           cast(TO_CHAR(snapshot_month, 'YYYYMM') as int) AS snapshot_month_id,
            starting_stock::INTEGER as starting_stock,
            received_stock::INTEGER as received_stock,
            sold_units::INTEGER as sold_units,

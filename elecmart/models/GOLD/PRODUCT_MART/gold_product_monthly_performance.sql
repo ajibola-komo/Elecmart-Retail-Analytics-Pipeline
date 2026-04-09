@@ -1,6 +1,6 @@
 with product_monthly_performance_completed_transactions as (
 select fs.product_id, date_trunc('month', fs.transaction_timestamp)::DATE as transaction_month,
-to_char(date_trunc('month', fs.transaction_timestamp), 'YYYYMMDD') as transaction_month_id,
+cast(to_char(date_trunc('month', fs.transaction_timestamp), 'YYYYMM') as int) as transaction_month_id,
 dp.product_name, dp.category_name, dp.brand_name,
 sum(fs.net_line_revenue) as total_revenue,
 sum(fs.line_cost) as total_cogs,

@@ -1,6 +1,6 @@
 select 
 date_trunc('month',fs.transaction_timestamp) as transaction_month, 
-to_char(date_trunc('month',fs.transaction_timestamp), 'YYYYMMDD') as transaction_month_id,
+cast(to_char(date_trunc('month',fs.transaction_timestamp), 'YYYYMM') as int) as transaction_month_id,
 fs.store_id,
 sum(case when fs.transaction_status = 'Completed' then fs.net_line_revenue else 0 end) as total_revenue,
 sum(case when fs.transaction_status = 'Completed' then fs.line_cost else 0 end) as total_cogs,
