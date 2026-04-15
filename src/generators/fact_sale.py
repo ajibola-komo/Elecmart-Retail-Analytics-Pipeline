@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 from src.config.constants import (SALES_START_ID, TRANSACTION_START_ID, PRODUCT_RANGES, PRODUCT_WEIGHTS)
 from src.config.paths import (SALES_CSV_PATH, SALES_DDL_PATH, SALES_PARQUET_PATH)
-from src.generators.month_distribution import generate_month_distribution
+from src.generators.month_distribution import generate_in_store_month_distribution
 
 def generate_sales(conn,num_of_transactions):
 
@@ -39,7 +39,7 @@ def generate_sales(conn,num_of_transactions):
     transaction_timestamps[n_low_sessions:n_low_sessions + n_mid_sessions] = mid_aov_sessions['session_end_time'].values
     transaction_timestamps[n_low_sessions + n_mid_sessions:n_low_sessions + n_mid_sessions + n_high_sessions] = high_aov_sessions['session_end_time'].values
     if remaining_transactions > 0:
-        transaction_timestamps[n_sessions:] = pd.to_datetime(generate_month_distribution(remaining_transactions))
+        transaction_timestamps[n_sessions:] = pd.to_datetime(generate_in_store_month_distribution(remaining_transactions))
     items_count_list = np.random.randint(1,4, size=num_of_transactions)
     total_items = items_count_list.sum()
     sale_transaction_ids = np.repeat(transaction_ids, items_count_list)

@@ -6,7 +6,7 @@ import re
 from datetime import timedelta
 from src.config.constants import (
     CUSTOMER_EMAIL_OPT_IN, CUSTOMER_GENDER, CUSTOMER_SIGNUP_CHANNEL, CUSTOMER_SMS_OPT_IN,
-    CURRENT_DATE, CUSTOMER_EMAIL_DOMAIN, COMPANY_START_DATE, CUSTOMERS_PERSONA_MAP, CUSTOMER_PERSONAS, PERSONA_WEIGHTS
+    BASE_TRANSACTION_END_TIMESTAMP, CUSTOMER_EMAIL_DOMAIN, COMPANY_START_DATE, CUSTOMERS_PERSONA_MAP, CUSTOMER_PERSONAS, PERSONA_WEIGHTS
 )
 from src.config.paths import CUSTOMERS_CSV_PATH, CUSTOMERS_DDL_PATH, CUSTOMERS_PARQUET_PATH
 
@@ -89,7 +89,7 @@ def generate_customers(conn, num_of_customers):
     ])
 
 
-    random_offset = int((CURRENT_DATE - COMPANY_START_DATE).total_seconds())
+    random_offset = int((BASE_TRANSACTION_END_TIMESTAMP.date() - COMPANY_START_DATE).total_seconds())
 
     time_off = np.random.randint(0,random_offset, size = num_of_customers)
 
@@ -107,7 +107,7 @@ def generate_customers(conn, num_of_customers):
     location_ids[practical_buyer_mask] = np.random.choice(rural_location_data['location_id'], p = rural_location_data['location_weight']/rural_location_data['location_weight'].sum(), size = practical_buyer_mask.sum())
 
     birth_dates = np.array([
-    CURRENT_DATE - timedelta(days=int(age * 365.25))
+    BASE_TRANSACTION_END_TIMESTAMP - timedelta(days=int(age * 365.25))
     for age in customer_age
 ])
 

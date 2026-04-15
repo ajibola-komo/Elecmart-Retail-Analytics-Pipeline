@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 from src.config.paths import CAMPAIGNS_DDL_PATH, CAMPAIGNS_CSV_PATH, CAMPAIGNS_PARQUET_PATH
 from src.config.constants import (
                 CUSTOMER_LOYALTY_STATUS, CAMPAIGN_CHANNEL, CAMPAIGN_CHANNELS_WEIGHTS, BASE_TRANSACTION_TIME_STAMP, 
-                CURRENT_DATE, CURRENT_TIMESTAMP, CAMPAIGN_COOLDOWN_PERIODS, CAMPAIGN_PERIOD_OF_VALIDITY,
+                BASE_TRANSACTION_END_TIMESTAMP, CURRENT_TIMESTAMP, CAMPAIGN_COOLDOWN_PERIODS, CAMPAIGN_PERIOD_OF_VALIDITY,
               )
 
 def generate_campaigns(conn, number_of_campaigns):
@@ -23,7 +23,7 @@ def generate_campaigns(conn, number_of_campaigns):
 
     base_np = np.datetime64(BASE_TRANSACTION_TIME_STAMP)
 
-    total_duration = int((CURRENT_TIMESTAMP - BASE_TRANSACTION_TIME_STAMP).total_seconds())
+    total_duration = int((BASE_TRANSACTION_END_TIMESTAMP - BASE_TRANSACTION_TIME_STAMP).total_seconds())
 
     random_offset = np.random.randint(0,total_duration + 1, size = number_of_campaigns)
 

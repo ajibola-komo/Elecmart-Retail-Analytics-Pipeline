@@ -1,10 +1,14 @@
 import numpy as np
 from datetime import timedelta, datetime, time, date
 
-BASE_TRANSACTION_TIME_STAMP = datetime.now() - timedelta(days=365)
+
 CURRENT_YEAR = datetime.now().year
 CURRENT_DATE = datetime.now().date()
 CURRENT_TIMESTAMP = datetime.now()
+START_YEAR = CURRENT_YEAR - 2
+BASE_TRANSACTION_TIME_STAMP = datetime.combine(date(START_YEAR,1,1), time(0,0,0))
+BASE_TRANSACTION_END_TIMESTAMP = datetime.combine(date(CURRENT_YEAR - 1,12,31), time(23,59,59))
+DATA_GEN_START_DATE = datetime(2024, 1, 1)
 COMPANY_START_TIMESTAMP = datetime.combine(date(2001,5,30), time(10,0,0))
 COMPANY_START_DATE = date(2001,5,30)
 

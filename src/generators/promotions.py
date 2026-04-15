@@ -74,7 +74,7 @@ def generate_promotions(conn):
 
     cooldown[0] = 0
 
-    first_date = CURRENT_TIMESTAMP - timedelta(days=365)
+    first_date = BASE_TRANSACTION_TIME_STAMP
 
     promo_start_dates = np.empty(num_of_promotions, dtype=datetime)
 

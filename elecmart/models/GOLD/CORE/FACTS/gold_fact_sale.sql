@@ -17,7 +17,6 @@ with calculate_line_discount as (
         * coalesce(ft.transaction_discount_applied, 0), 2) as allocated_line_discount,
         ft.transaction_status as transaction_status,
         ft.sales_channel
-
     from {{ ref('silver_fact_sale') }} fs
     join {{ ref('silver_fact_transaction') }} ft 
         on fs.transaction_id = ft.transaction_id
