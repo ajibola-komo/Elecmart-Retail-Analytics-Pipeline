@@ -6,7 +6,7 @@ from src.config.constants import (PROMO_TYPE_MAP, PROMO_TYPES, PROMO_TYPES_WEIGH
                                   PRE_HOLIDAY_PROMOTIONS_NAMES, OTHER_PROMOTIONS_NAMES, JAN_FEB_PROMOTIONS_NAMES, WEEKEND_PROMOTIONS_NAMES,
                                   MID_YEAR_PROMOTIONS_NAMES, YEAR_END_PROMOTIONS_NAMES, BLACK_FRIDAY_PROMOTION_NAMES,
                                   PERCENTAGE_DISCOUNT_VALUES, PERCENTAGE_DISCOUNT_WEIGHTING, FIXED_AMOUNT_DISCOUNT_VALUES, FIXED_AMOUNT_DISCOUNT_WEIGHTING,
-                                  BASE_TRANSACTION_TIME_STAMP, CURRENT_TIMESTAMP)
+                                  BASE_TRANSACTION_TIME_STAMP_Y1, BASE_TRANSACTION_TIME_STAMP_Y2, BASE_TRANSACTION_END_TIMESTAMP_Y1, BASE_TRANSACTION_END_TIMESTAMP_Y2, CURRENT_TIMESTAMP)
 
 #promo_id
 #promo_name
@@ -46,7 +46,7 @@ def generate_promotions(conn):
 
     create_db = PROMOTIONS_DDL_PATH.read_text()
 
-    num_of_promotions = 35
+    num_of_promotions = 70
 
     conn.execute(create_db)
     promo_ids = np.arange(1,num_of_promotions + 1)
@@ -74,7 +74,7 @@ def generate_promotions(conn):
 
     cooldown[0] = 0
 
-    first_date = BASE_TRANSACTION_TIME_STAMP
+    first_date = BASE_TRANSACTION_TIME_STAMP_Y1
 
     promo_start_dates = np.empty(num_of_promotions, dtype=datetime)
 

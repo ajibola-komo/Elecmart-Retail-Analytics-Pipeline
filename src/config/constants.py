@@ -6,9 +6,11 @@ CURRENT_YEAR = datetime.now().year
 CURRENT_DATE = datetime.now().date()
 CURRENT_TIMESTAMP = datetime.now()
 START_YEAR = CURRENT_YEAR - 2
-BASE_TRANSACTION_TIME_STAMP = datetime.combine(date(START_YEAR,1,1), time(0,0,0))
-BASE_TRANSACTION_END_TIMESTAMP = datetime.combine(date(CURRENT_YEAR - 1,12,31), time(23,59,59))
-DATA_GEN_START_DATE = datetime(2024, 1, 1)
+BASE_TRANSACTION_TIME_STAMP_Y1 = datetime.combine(date(START_YEAR,1,1), time(0,0,0))
+BASE_TRANSACTION_END_TIMESTAMP_Y1 = datetime.combine(date(START_YEAR,12,31), time(23,59,59))
+BASE_TRANSACTION_TIME_STAMP_Y2 = datetime.combine(date(START_YEAR + 1,1,1), time(0,0,0))
+BASE_TRANSACTION_END_TIMESTAMP_Y2 = datetime.combine(date(START_YEAR + 1,12,31), time(23,59,59))
+## DATA_GEN_START_DATE = datetime(2024, 1, 1)
 COMPANY_START_TIMESTAMP = datetime.combine(date(2001,5,30), time(10,0,0))
 COMPANY_START_DATE = date(2001,5,30)
 
@@ -259,7 +261,24 @@ SESSION_START_ID = 9_000_862
 
 
 MONTH_NUMBERS = [1,2,3,4,5,6,7,8,9,10,11,12]
-MONTH_WEIGHTS = [0.8, 0.85, 1.0, 1.1, 1.2, 1.3, 1.25, 1.2, 1.1, 1.3, 1.6, 1.8]
+MONTH_WEIGHTS_ONLINE_Y1 = [
+    0.85, 0.90, 1.00, 1.05,
+    1.10, 1.15, 1.12, 1.08,
+    1.02, 1.15, 1.40, 1.65
+]
+MONTH_WEIGHTS_STORE_Y1 = [
+    0.95, 0.97, 1.00, 1.03,
+    1.06, 1.10, 1.12, 1.10,
+    1.05, 1.12, 1.30, 1.50
+    ]
+
+MONTH_WEIGHTS_ONLINE_Y2 = [0.88, 0.93, 1.02, 1.08,
+    1.14, 1.18, 1.15, 1.10,
+    1.05, 1.20, 1.48, 1.75]
+
+MONTH_WEIGHTS_STORE_Y2 = [0.94, 0.96, 1.00, 1.02,
+    1.05, 1.08, 1.10, 1.08,
+    1.04, 1.10, 1.28, 1.48]
 PRODUCT_RANGES= ['Low','Mid','High']
 PRODUCT_WEIGHTS = [0.4,0.35,0.25]
 

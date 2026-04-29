@@ -3,10 +3,10 @@ import pandas as pd
 from datetime import timedelta
 from src.config.paths import (STORES_DDL_PATH, STORES_CSV_PATH, STORES_PARQUET_PATH)
 from src.config.constants import (COMPANY_START_TIMESTAMP, STORE_TYPES_MAP,STORE_TYPES,STORE_WEIGHTS, 
-                                  BASE_TRANSACTION_TIME_STAMP, COMPANY_NAME, CURRENT_DATE)
+                                  BASE_TRANSACTION_TIME_STAMP_Y1, COMPANY_NAME, CURRENT_DATE)
 
 def generate_stores(conn, num_of_stores):
-    total_days = (BASE_TRANSACTION_TIME_STAMP - COMPANY_START_TIMESTAMP).days
+    total_days = (BASE_TRANSACTION_TIME_STAMP_Y1 - COMPANY_START_TIMESTAMP).days
 
     create_db = STORES_DDL_PATH.read_text()
     conn.execute(create_db)
@@ -29,7 +29,7 @@ def generate_stores(conn, num_of_stores):
     
     store_sizes = np.random.randint(store_sizes_lo, store_sizes_hi + 1)
 
-    last_new_store_day = CURRENT_DATE - timedelta(days=365 * 2)
+    last_new_store_day = CURRENT_DATE - timedelta(days=365 * 5)
 
     duration = int((pd.to_datetime(last_new_store_day) - COMPANY_START_TIMESTAMP).days)
 

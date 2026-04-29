@@ -89,9 +89,9 @@ def generate_transactions(conn):
     basic_level_customers_ids = basic_level_customers['customer_id'].values
     basic_level_customer_sign_up_dates = basic_level_customers['signup_date'].values
 
-    premium_customers_subset = premium_customers.sample(frac=0.25, random_state=42)
-    mid_level_customers_subset = mid_level_customers.sample(frac=0.25, random_state=42)
-    basic_level_customers_subset = basic_level_customers.sample(frac=0.25, random_state=42)
+    premium_customers_subset = premium_customers.sample(frac=0.65, random_state=42)
+    mid_level_customers_subset = mid_level_customers.sample(frac=0.65, random_state=42)
+    basic_level_customers_subset = basic_level_customers.sample(frac=0.65, random_state=42)
 
     premium_subset_ids = premium_customers_subset['customer_id'].values
     premium_subset_signup_dates = premium_customers_subset['signup_date'].values
