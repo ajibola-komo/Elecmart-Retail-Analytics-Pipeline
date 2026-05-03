@@ -1,4 +1,3 @@
-import duckdb as db
 import numpy as np
 import pandas as pd
 from src.generators.month_distribution import generate_online_month_distribution
@@ -10,8 +9,9 @@ from src.config.constants import (SESSION_START_ID, TRAFFIC_SOURCES, TRAFFIC_WEI
                                   BASE_TRANSACTION_TIME_STAMP_Y1, BASE_TRANSACTION_END_TIMESTAMP_Y1, BASE_TRANSACTION_END_TIMESTAMP_Y2,
                                   BASE_TRANSACTION_TIME_STAMP_Y2, REPEATED_SESSION_SUBSET_PREMIUM, REPEATED_SESSION_SUBSET_MID, REPEATED_SESSION_SUBSET_BASIC)
 
-def generate_clickstreams(conn,num_of_sessions_y1, num_of_sessions_y2):
+def generate_clickstreams(conn,num_of_sessions_y1, num_of_sessions_y2): #conn takes in the connection object as an argument, num_of_sessions is the total number of sessions to generate across both years
 
+    # Generate customer segments to be used in clickstream generation
     customer_segments = generate_customer_segments(conn)
 
     all_customers = customer_segments["all_customers"]
@@ -19,9 +19,15 @@ def generate_clickstreams(conn,num_of_sessions_y1, num_of_sessions_y2):
     mid_level_customers = customer_segments["mid"]
     basic_level_customers = customer_segments["basic"]
 
-    premium_customers_subset = premium_customers.sample(frac=REPEATED_SESSION_SUBSET_PREMIUM, random_state=42)
-    mid_level_customers_subset = mid_level_customers.sample(frac=REPEATED_SESSION_SUBSET_MID, random_state=42)
-    basic_level_customers_subset = basic_level_customers.sample(frac=REPEATED_SESSION_SUBSET_BASIC, random_state=42)
+    premium_customers["activity_weight"] = np.random.pareto(2, len(premium_customers)) + 1
+
+    mid_level_customers["activity_weight"] = np.random.pareto(3, len(mid_level_customers)) + 1
+
+    basic_level_customers["activity_weight"] = np.random.pareto(4, len(basic_level_customers)) + 1
+
+    premium_customers_subset = premium_customers.sample(frac=REPEATED_SESSION_SUBSET_PREMIUM, weights = "activity_weight", replace = True)
+    mid_level_customers_subset = mid_level_customers.sample(frac=REPEATED_SESSION_SUBSET_MID, weights = "activity_weight", replace = True)
+    basic_level_customers_subset = basic_level_customers.sample(frac=REPEATED_SESSION_SUBSET_BASIC, weights = "activity_weight", replace = True)
 
     repeated_session_y1 = np.random.rand(num_of_sessions_y1) <= PROB_OF_REPEATED_SESSION_Y1
     repeated_session_y2 = np.random.rand(num_of_sessions_y2) <= PROB_OF_REPEATED_SESSION_Y2
@@ -41,30 +47,42 @@ def generate_clickstreams(conn,num_of_sessions_y1, num_of_sessions_y2):
     + online_distribution["y2"].tolist()
 )
 
-    durations = np.random.choice(SESSION_MINUTES, p = SESSION_WEIGHTS, size= num_of_sessions_y1 + num_of_sessions_y2)
+    total_sessions = num_of_sessions_y1 + num_of_sessions_y2
+
+    durations = np.random.choice(SESSION_MINUTES, p = SESSION_WEIGHTS, size= total_sessions)
 
     session_end_times = session_start_times + pd.to_timedelta(durations, unit="m")
 
-    device_types = np.random.choice(DEVICE_TYPES, p = DEVICE_WEIGHTS, size= num_of_sessions_y1 + num_of_sessions_y2)
+    device_types = np.random.choice(DEVICE_TYPES, p = DEVICE_WEIGHTS, size= total_sessions)
 
-    number_of_pages_viewed = np.where(durations <= 2, np.random.randint(1,4,size=num_of_sessions_y1 + num_of_sessions_y2),
-                                    np.where((durations > 2) & (durations <= 5), np.random.randint(4,7, size = num_of_sessions_y1 + num_of_sessions_y2),
-                                             np.random.randint(7,13, size= num_of_sessions_y1 + num_of_sessions_y2)))
+    number_of_pages_viewed = np.where(durations <= 2, np.random.randint(1,4,size=total_sessions),
+                                    np.where((durations > 2) & (durations <= 5), np.random.randint(4,7, size = total_sessions),
+                                             np.random.randint(7,13, size= total_sessions)))
 
 
-    aov = np.full(num_of_sessions_y1 + num_of_sessions_y2, None, dtype=object)
+    aov = np.full(total_sessions, None, dtype=object)
 
     product_page_visited_flag = number_of_pages_viewed >= 4
     y1_sessions = (session_start_times >= pd.to_datetime(BASE_TRANSACTION_TIME_STAMP_Y1)) & (session_start_times <= pd.to_datetime(BASE_TRANSACTION_END_TIMESTAMP_Y1))
     y2_sessions = (session_start_times >= pd.to_datetime(BASE_TRANSACTION_TIME_STAMP_Y2)) & (session_start_times <= pd.to_datetime(BASE_TRANSACTION_END_TIMESTAMP_Y2))
     
-    added_to_cart_flag = np.zeros(num_of_sessions_y1 + num_of_sessions_y2, dtype=bool)
-    purchased_flag = np.zeros(num_of_sessions_y1 + num_of_sessions_y2, dtype=bool)
-    is_customer_session = np.zeros(num_of_sessions_y1 + num_of_sessions_y2, dtype=bool)
-    probability_of_campaign_linked = np.zeros(num_of_sessions_y1 + num_of_sessions_y2, dtype=bool)
+    added_to_cart_flag = np.zeros(total_sessions, dtype=bool)
+    purchased_flag = np.zeros(total_sessions, dtype=bool)
+    is_customer_session = np.zeros(total_sessions, dtype=bool)
+    probability_of_campaign_linked = np.zeros(total_sessions, dtype=bool)
 
-    added_to_cart_flag[y1_sessions] = product_page_visited_flag[y1_sessions] & (np.random.rand(y1_sessions.sum()) <= PROB_OF_PURCHASE_INTENTION_Y1)
-    added_to_cart_flag[y2_sessions] = product_page_visited_flag[y2_sessions] & (np.random.rand(y2_sessions.sum()) <= PROB_OF_PURCHASE_INTENTION_Y2)
+    y1_product_sessions = y1_sessions & product_page_visited_flag
+    y2_product_sessions = y2_sessions & product_page_visited_flag
+
+    added_to_cart_flag[y1_product_sessions] = (
+    np.random.rand(y1_product_sessions.sum())
+    <= PROB_OF_PURCHASE_INTENTION_Y1
+    )
+
+    added_to_cart_flag[y2_product_sessions] = (
+    np.random.rand(y2_product_sessions.sum())
+    <= PROB_OF_PURCHASE_INTENTION_Y2
+    )
 
     purchased_flag[y1_sessions] = added_to_cart_flag[y1_sessions] & (np.random.rand(y1_sessions.sum()) <= PROB_OF_PURCHASE_Y1)
     purchased_flag[y2_sessions] = added_to_cart_flag[y2_sessions] & (np.random.rand(y2_sessions.sum()) <= PROB_OF_PURCHASE_Y2)
@@ -77,24 +95,22 @@ def generate_clickstreams(conn,num_of_sessions_y1, num_of_sessions_y2):
     probability_of_campaign_linked[y2_sessions] = np.random.rand(y2_sessions.sum()) <= PROB_OF_CAMPAIGN_LINKED_Y2
     eligible_idx = np.where(probability_of_campaign_linked)[0]
 
-    campaign_ids_for_sessions = np.full(num_of_sessions_y1 + num_of_sessions_y2, None, dtype = object)
+    campaign_ids_for_sessions = np.full(total_sessions, None, dtype = object)
 
-    eligible_starts = session_start_times[eligible_idx]
+    eligible_starts = session_start_times[eligible_idx].to_numpy()
 
     camp_starts = pd.to_datetime(campaigns_data['campaign_start_date']).to_numpy()
     camp_ends = pd.to_datetime(campaigns_data['campaign_end_date']).to_numpy()
     camp_ids = campaigns_data['campaign_id'].to_numpy()
 
-    valid_mask = (camp_starts[np.newaxis, :] <= eligible_starts[:, np.newaxis]) & \
-             (camp_ends[np.newaxis, :]   >= eligible_starts[:, np.newaxis])
+    valid_mask = (camp_starts[np.newaxis, :] <= eligible_starts[:, np.newaxis]) & (camp_ends[np.newaxis, :]   >= eligible_starts[:, np.newaxis])
 
     for i, idx in enumerate(eligible_idx):
         valid_camps = camp_ids[valid_mask[i]]
         if valid_camps.size > 0:
             campaign_ids_for_sessions[idx] = np.random.choice(valid_camps)
 
-    campaign_linked = pd.notnull(campaign_ids_for_sessions)
-    linked_to_a_campaign_flag = np.where(campaign_linked, True, False)
+    linked_to_a_campaign_flag = pd.notnull(campaign_ids_for_sessions)
     prob_of_premium_sessions = np.random.rand(len(is_customer_session)) <= 0.3 
     prob_of_basic_sessions = np.random.rand(len(is_customer_session)) <= 0.35
 

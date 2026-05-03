@@ -90,9 +90,15 @@ def generate_transactions(conn):
     basic_level_customers_ids = basic_level_customers['customer_id'].values
     basic_level_customer_sign_up_dates = basic_level_customers['signup_date'].values
 
-    premium_customers_subset = premium_customers.sample(frac=REPEATED_SESSION_SUBSET_PREMIUM, random_state=42)
-    mid_level_customers_subset = mid_level_customers.sample(frac=REPEATED_SESSION_SUBSET_MID, random_state=42)
-    basic_level_customers_subset = basic_level_customers.sample(frac=REPEATED_SESSION_SUBSET_BASIC, random_state=42)
+    premium_customers["activity_weight"] = np.random.pareto(2, len(premium_customers)) + 1
+
+    mid_level_customers["activity_weight"] = np.random.pareto(3, len(mid_level_customers)) + 1
+
+    basic_level_customers["activity_weight"] = np.random.pareto(4, len(basic_level_customers)) + 1
+
+    premium_customers_subset = premium_customers.sample(frac=REPEATED_SESSION_SUBSET_PREMIUM, weights = "activity_weight", replace = True)
+    mid_level_customers_subset = mid_level_customers.sample(frac=REPEATED_SESSION_SUBSET_MID, weights = "activity_weight", replace = True)
+    basic_level_customers_subset = basic_level_customers.sample(frac=REPEATED_SESSION_SUBSET_BASIC, weights = "activity_weight", replace = True)
 
     premium_subset_ids = premium_customers_subset['customer_id'].values
     premium_subset_signup_dates = premium_customers_subset['signup_date'].values

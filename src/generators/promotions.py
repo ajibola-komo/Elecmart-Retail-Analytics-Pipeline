@@ -2,23 +2,12 @@ import pandas as pd
 import numpy as np
 from datetime import timedelta, datetime
 from src.config.paths import (PROMOTIONS_DDL_PATH, PROMOTIONS_CSV_PATH, PROMOTIONS_PARQUET_PATH)
-from src.config.constants import (PROMO_TYPE_MAP, PROMO_TYPES, PROMO_TYPES_WEIGHTS, PROMOTION_DISCOUNT_TYPES, PROMOTIONS_DISCOUNT_TYPES_WEIGHTING,
-                                  PRE_HOLIDAY_PROMOTIONS_NAMES, OTHER_PROMOTIONS_NAMES, JAN_FEB_PROMOTIONS_NAMES, WEEKEND_PROMOTIONS_NAMES,
+from src.config.constants import (PROMO_TYPE_MAP, PROMO_TYPES, PROMO_TYPES_WEIGHTS, PROMOTION_DISCOUNT_TYPES, 
+                                  PROMOTIONS_DISCOUNT_TYPES_WEIGHTING, PRE_HOLIDAY_PROMOTIONS_NAMES, OTHER_PROMOTIONS_NAMES, 
+                                  JAN_FEB_PROMOTIONS_NAMES, WEEKEND_PROMOTIONS_NAMES,
                                   MID_YEAR_PROMOTIONS_NAMES, YEAR_END_PROMOTIONS_NAMES, BLACK_FRIDAY_PROMOTION_NAMES,
-                                  PERCENTAGE_DISCOUNT_VALUES, PERCENTAGE_DISCOUNT_WEIGHTING, FIXED_AMOUNT_DISCOUNT_VALUES, FIXED_AMOUNT_DISCOUNT_WEIGHTING,
-                                  BASE_TRANSACTION_TIME_STAMP_Y1, BASE_TRANSACTION_TIME_STAMP_Y2, BASE_TRANSACTION_END_TIMESTAMP_Y1, BASE_TRANSACTION_END_TIMESTAMP_Y2, CURRENT_TIMESTAMP)
-
-#promo_id
-#promo_name
-#promo_type
-#discount_type
-#discount_value
-#start_date
-#end_date
-#promo_duration
-#promo_code
-#is_active
-#promo_description
+                                  PERCENTAGE_DISCOUNT_VALUES, PERCENTAGE_DISCOUNT_WEIGHTING, FIXED_AMOUNT_DISCOUNT_VALUES, 
+                                  FIXED_AMOUNT_DISCOUNT_WEIGHTING,BASE_TRANSACTION_TIME_STAMP_Y1, CURRENT_TIMESTAMP)
 
 def gen_promo_name(start_date):
 
@@ -42,11 +31,9 @@ def gen_promo_name(start_date):
     
     return promo_name
 
-def generate_promotions(conn):
+def generate_promotions(conn, num_of_promotions):
 
     create_db = PROMOTIONS_DDL_PATH.read_text()
-
-    num_of_promotions = 70
 
     conn.execute(create_db)
     promo_ids = np.arange(1,num_of_promotions + 1)

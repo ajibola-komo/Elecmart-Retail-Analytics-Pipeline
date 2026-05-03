@@ -9,13 +9,9 @@ START_YEAR = CURRENT_YEAR - 2
 BASE_TRANSACTION_TIME_STAMP_Y1 = datetime.combine(date(START_YEAR,1,1), time(0,0,0))
 BASE_TRANSACTION_END_TIMESTAMP_Y1 = datetime.combine(date(START_YEAR,12,31), time(23,59,59))
 BASE_TRANSACTION_TIME_STAMP_Y2 = datetime.combine(date(START_YEAR + 1,1,1), time(0,0,0))
-BASE_TRANSACTION_END_TIMESTAMP_Y2 = datetime.combine(date(START_YEAR + 1,12,31), time(23,59,59))
-## DATA_GEN_START_DATE = datetime(2024, 1, 1)
+BASE_TRANSACTION_END_TIMESTAMP_Y2 = datetime.combine(date(START_YEAR + 1,12,31), time(21,59,59))
 COMPANY_START_TIMESTAMP = datetime.combine(date(2001,5,30), time(10,0,0))
 COMPANY_START_DATE = date(2001,5,30)
-
-#-------------------------- LOCATIONS TABLE -----------------------------------------
-
 
 #--------------------------- CUSTOMERS TABLE -----------------------------------------
 
@@ -23,15 +19,13 @@ PROVINCE_CITY_MAP = {
     "Ontario": {
         "cities": ["Toronto", "Ottawa", "Mississauga", "London", "Hamilton"],
         "location_type": ["Urban", "Urban", "Suburban", "Suburban", "Suburban"],
-        "location_weights": [0.1, 0.07, 0.05, 0.04, 0.04],
-        #"foot_traffic_range": (80, 90)
+        "location_weights": [0.1, 0.07, 0.05, 0.04, 0.04]
     },
 
     "Quebec": {
         "cities": ["Montreal", "Quebec City", "Laval", "Gatineau"],
         "location_type": ["Urban", "Urban", "Suburban", "Suburban"],
-        "location_weights": [0.1, 0.05, 0.03, 0.02],
-        #"foot_traffic_range": (70, 85)
+        "location_weights": [0.1, 0.05, 0.03, 0.02]
     },
 
     "British Columbia": {
@@ -230,9 +224,9 @@ PROB_OF_CAMPAIGN_LINKED_Y1 = 0.35         # Attribution
 PROB_OF_CAMPAIGN_LINKED_Y2 = 0.40         # Attribution
 PROB_OF_REPEATED_SESSION_Y1 = 0.2               # Repeat visits/sessions
 PROB_OF_REPEATED_SESSION_Y2 = 0.25               # Repeat visits/sessions
-REPEATED_SESSION_SUBSET_PREMIUM = 0.45
-REPEATED_SESSION_SUBSET_MID = 0.35
-REPEATED_SESSION_SUBSET_BASIC = 0.6
+REPEATED_SESSION_SUBSET_PREMIUM = 0.8
+REPEATED_SESSION_SUBSET_MID = 0.8
+REPEATED_SESSION_SUBSET_BASIC = 0.8
 
 #----------------------------------------- Transactions ------------------------------------------------------
 

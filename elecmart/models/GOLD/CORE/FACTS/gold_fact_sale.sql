@@ -9,6 +9,8 @@ with calculate_line_discount as (
         ft.store_id,
         ft.customer_id,
         ft.sales_channel,
+        ft.campaign_id,
+        ft.promo_id,
         fs.quantity,
         fs.unit_cost,
         fs.unit_price,

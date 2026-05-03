@@ -1,5 +1,5 @@
 from src.config.constants import (BASE_TRANSACTION_END_TIMESTAMP_Y1, BASE_TRANSACTION_TIME_STAMP_Y1, MONTH_WEIGHTS_ONLINE_Y1,
-MONTH_WEIGHTS_STORE_Y1, MONTH_WEIGHTS_ONLINE_Y2, MONTH_WEIGHTS_STORE_Y2, MONTH_NUMBERS, BASE_TRANSACTION_TIME_STAMP_Y2, BASE_TRANSACTION_END_TIMESTAMP_Y2)
+MONTH_WEIGHTS_STORE_Y1, MONTH_WEIGHTS_ONLINE_Y2, MONTH_WEIGHTS_STORE_Y2, SESSION_MINUTES, BASE_TRANSACTION_TIME_STAMP_Y2, BASE_TRANSACTION_END_TIMESTAMP_Y2)
 import numpy as np
 import pandas as pd
 
@@ -40,7 +40,14 @@ def generate_online_month_distribution(num_of_records_y1, num_of_records_y2):
     )
 
     random_seconds_y1 = np.random.randint(0, 86400, size=num_of_records_y1)
-    random_seconds_y2 = np.random.randint(0, 86400, size=num_of_records_y2)
+    max_random_seconds = 86400 - (max(SESSION_MINUTES) * 60)
+
+    random_seconds_y2 = np.random.randint(
+    0,
+    max_random_seconds,
+    size=num_of_records_y2
+)
+
     seasonal_timestamps_y1 = sampled_dates_y1 + pd.to_timedelta(random_seconds_y1, unit='s')
     seasonal_timestamps_y2 = sampled_dates_y2 + pd.to_timedelta(random_seconds_y2, unit='s')
 

@@ -4,8 +4,8 @@ import pandas as pd
 from datetime import datetime, timedelta
 from src.config.paths import CAMPAIGNS_DDL_PATH, CAMPAIGNS_CSV_PATH, CAMPAIGNS_PARQUET_PATH
 from src.config.constants import (
-                BASE_TRANSACTION_TIME_STAMP_Y1, CUSTOMER_LOYALTY_STATUS, CAMPAIGN_CHANNEL, CAMPAIGN_CHANNELS_WEIGHTS, BASE_TRANSACTION_END_TIMESTAMP_Y1, 
-                BASE_TRANSACTION_END_TIMESTAMP_Y2, CURRENT_TIMESTAMP, CAMPAIGN_COOLDOWN_PERIODS, CAMPAIGN_PERIOD_OF_VALIDITY,
+                BASE_TRANSACTION_TIME_STAMP_Y1, CAMPAIGN_CHANNEL, CAMPAIGN_CHANNELS_WEIGHTS, 
+                BASE_TRANSACTION_END_TIMESTAMP_Y2, CAMPAIGN_PERIOD_OF_VALIDITY,
               )
 
 def generate_campaigns(conn, number_of_campaigns):
@@ -21,7 +21,7 @@ def generate_campaigns(conn, number_of_campaigns):
     campaign_start_dates = np.empty(number_of_campaigns, dtype='datetime64[ns]')
     campaign_end_dates = np.empty(number_of_campaigns, dtype='datetime64[ns]')
 
-    base_np = np.datetime64(BASE_TRANSACTION_END_TIMESTAMP_Y1)
+    base_np = np.datetime64(BASE_TRANSACTION_TIME_STAMP_Y1)
 
     total_duration = int((BASE_TRANSACTION_END_TIMESTAMP_Y2 - BASE_TRANSACTION_TIME_STAMP_Y1).total_seconds())
 
