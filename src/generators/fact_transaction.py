@@ -96,25 +96,25 @@ def generate_transactions(conn):
 
     basic_level_customers["activity_weight"] = np.random.pareto(4, len(basic_level_customers)) + 1
 
-    premium_customers_subset = premium_customers.sample(frac=REPEATED_SESSION_SUBSET_PREMIUM, weights = "activity_weight", replace = True)
-    mid_level_customers_subset = mid_level_customers.sample(frac=REPEATED_SESSION_SUBSET_MID, weights = "activity_weight", replace = True)
-    basic_level_customers_subset = basic_level_customers.sample(frac=REPEATED_SESSION_SUBSET_BASIC, weights = "activity_weight", replace = True)
+    #premium_customers_subset = premium_customers.sample(frac=REPEATED_SESSION_SUBSET_PREMIUM, weights = "activity_weight", replace = True)
+    #mid_level_customers_subset = mid_level_customers.sample(frac=REPEATED_SESSION_SUBSET_MID, weights = "activity_weight", replace = True)
+    #basic_level_customers_subset = basic_level_customers.sample(frac=REPEATED_SESSION_SUBSET_BASIC, weights = "activity_weight", replace = True)
 
-    premium_subset_ids = premium_customers_subset['customer_id'].values
-    premium_subset_signup_dates = premium_customers_subset['signup_date'].values
-    mid_subset_ids = mid_level_customers_subset['customer_id'].values
-    mid_subset_signup_dates = mid_level_customers_subset['signup_date'].values
-    basic_subset_ids = basic_level_customers_subset['customer_id'].values
-    basic_subset_signup_dates = basic_level_customers_subset['signup_date'].values
+    #premium_subset_ids = premium_customers_subset['customer_id'].values
+    #premium_subset_signup_dates = premium_customers_subset['signup_date'].values
+    #mid_subset_ids = mid_level_customers_subset['customer_id'].values
+    #mid_subset_signup_dates = mid_level_customers_subset['signup_date'].values
+    #basic_subset_ids = basic_level_customers_subset['customer_id'].values
+    #basic_subset_signup_dates = basic_level_customers_subset['signup_date'].values
 
     in_store_indices = np.where(is_in_store_transaction)[0]
 
     y1_mask = pd.to_datetime(transaction_timestamps[in_store_indices]) <= pd.Timestamp(BASE_TRANSACTION_END_TIMESTAMP_Y1)
-    repeated_session = np.where(
-    y1_mask,
-    np.random.rand(len(in_store_indices)) <= PROB_OF_REPEATED_SESSION_Y1,
-    np.random.rand(len(in_store_indices)) <= PROB_OF_REPEATED_SESSION_Y2
-)
+    #repeated_session = np.where(
+    #y1_mask,
+    #np.random.rand(len(in_store_indices)) <= PROB_OF_REPEATED_SESSION_Y1,
+    #np.random.rand(len(in_store_indices)) <= PROB_OF_REPEATED_SESSION_Y2
+#)
 
     locations_data = conn.execute("select location_id from dim_location").df()
     all_location_ids = locations_data['location_id']
@@ -162,29 +162,29 @@ def generate_transactions(conn):
     eligible_in_store_transactions = np.where(is_in_store_transaction)[0]
 
     for i,idx in enumerate(eligible_in_store_transactions):
-        subset_dates_map = {
-            'High': premium_subset_signup_dates,
-            'Mid': mid_subset_signup_dates,
-            'Low': basic_subset_signup_dates
-        }
+        #subset_dates_map = {
+            #'High': premium_subset_signup_dates,
+            #'Mid': mid_subset_signup_dates,
+            #'Low': basic_subset_signup_dates
+        #}
 
-        subset_ids_map = {
-            'High': premium_subset_ids,
-            'Mid': mid_subset_ids,
-            'Low': basic_subset_ids
-        }
+        #subset_ids_map = {
+            #'High': premium_subset_ids,
+            #'Mid': mid_subset_ids,
+            #'Low': basic_subset_ids
+        #}
 
         category = aov_categories[idx]
-        if repeated_session[i]:
-            dates = subset_dates_map.get(category, all_customer_sign_up_dates)
-            ids = subset_ids_map.get(category, all_customer_ids)
-        else:
-            dates = {
+        #if repeated_session[i]:
+            #dates = subset_dates_map.get(category, all_customer_sign_up_dates)
+            #ids = subset_ids_map.get(category, all_customer_ids)
+        #else:
+        dates = {
                 'High': premium_customer_sign_up_dates,
                 'Mid': mid_level_customer_sign_up_dates,
                 'Low': basic_level_customer_sign_up_dates
                 }.get(category, all_customer_sign_up_dates)
-            ids = {
+        ids = {
                     'High': premium_customers_ids,
                     'Mid': mid_level_customers_ids,
                     'Low': basic_level_customers_ids
